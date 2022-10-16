@@ -27,7 +27,7 @@ class TopbarHome extends StatelessWidget {
               color: Colors.white,
               child: FittedBox(
                   child : Text(
-                    "Hello Drashti",
+                    "Hello ",
                     style: TextStyle(fontWeight: FontWeight.w400),
                   )
               ),

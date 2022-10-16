@@ -11,6 +11,7 @@ class _PopularBooksState extends State<PopularBooks> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Container(
+
       height: size.height * 0.33,
       // color: Colors.purple,
       child: LayoutBuilder(builder: (context,constraints){
@@ -22,6 +23,7 @@ class _PopularBooksState extends State<PopularBooks> {
               padding: EdgeInsets.symmetric(horizontal: constraints.maxWidth *0.03),
               child: LayoutBuilder(builder: (context,constraints){
                 return Row(
+
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
