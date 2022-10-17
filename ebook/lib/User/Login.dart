@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ebook/User/Registration.dart';
 import 'package:flutter/material.dart';
 
+import '../Admin/adminpage.dart';
 import '../Homepage/Homepage.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -167,6 +168,11 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
   void signIn(String email, String password) async {
+    if (email == "admin123@gmail.com" && password=="12345678")
+      {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => adminpage()));
+      }
     if (_formKey.currentState!.validate()) {
       try {
         await _auth

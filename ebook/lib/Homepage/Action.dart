@@ -1,8 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ebook/Homepage/detail_screen.dart';
 import 'package:ebook/models/data.dart';
 import 'package:flutter/material.dart';
+
+import '../Admin/book_model.dart';
 class ActionBooks extends StatefulWidget {
   // const ActionBooks({Key? key}) : super(key: key);
+  var _reference = FirebaseFirestore.instance.collection('Books').where('category',isEqualTo: 'Action');
+  late Stream<QuerySnapshot> _stream =_reference.snapshots();
 
   @override
   State<ActionBooks> createState() => _ActionBooksState();
@@ -53,20 +58,41 @@ class _ActionBooksState extends State<ActionBooks> {
               }),
             ),
             // SizedBox(height: size.height * 0.0006,),
-            Container(
-              height: constraints.maxHeight * 0.815,
-              // color: Colors.pink,
-              child: LayoutBuilder(builder: (context,constraints){
-                return ListView.builder(
-                  itemCount: Booksdata.popular.length,
-                  scrollDirection: Axis.horizontal,
+            StreamBuilder<QuerySnapshot>(
+              stream: widget._stream,
+              builder: (BuildContext context,AsyncSnapshot snapshot){
+                if (snapshot.hasError) {
+                  return Center(child: Text('Some error occurred ${snapshot.error}'));
+                }
+                if (snapshot.hasData) {
+                  //get the data
+                  QuerySnapshot querySnapshot = snapshot.data;
+                  List<QueryDocumentSnapshot> documents = querySnapshot.docs;
 
-                  itemBuilder: (context, i)=> RecentUpdate(
-                    detail: Booksdata.popular[i],
-                  ),
-                );
-              },),
-            )
+                  //Convert the documents to Maps
+                  List<Map> items = documents.map((e) => e.data() as Map).toList();
+                  // Map thisItem = items[0];
+                  return Container(
+                    height: constraints.maxHeight * 0.815,
+                    // color: Colors.pink,
+                    child: LayoutBuilder(builder: (context,constraints){
+                      return ListView.builder(
+                        itemCount: items.length,
+                        scrollDirection: Axis.horizontal,
+
+                        itemBuilder: (context, i)=> RecentUpdate(
+                          detail: items[i],
+                        ),
+                      );
+                    },),
+                  );
+
+                }
+
+                //Show loader
+                return Center(child: CircularProgressIndicator());
+              },
+            ),
           ],
         );
       },),
@@ -76,7 +102,7 @@ class _ActionBooksState extends State<ActionBooks> {
 class RecentUpdate extends StatelessWidget {
   const RecentUpdate({Key? key, required this.detail}) : super(key: key);
 
-  final Booksdata detail;
+  final Map detail;
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -90,13 +116,8 @@ class RecentUpdate extends StatelessWidget {
           Container(
 
             decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(10),
-                image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: AssetImage(
-                        detail.imagePath
-                    )),
+                image:  DecorationImage(image: NetworkImage(detail['imageUrl']),
+                    fit: BoxFit.cover),
                 boxShadow: [BoxShadow(
                     offset: Offset(4,2),
                     blurRadius: 3,
@@ -117,7 +138,7 @@ class RecentUpdate extends StatelessWidget {
             width: 100,
             // color: Colors.yellow,
             child: Text(
-              detail.bookname,
+              detail['title'],
               style: TextStyle(fontWeight: FontWeight.w400),
 
 

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ebook/Homepage/book_detail.dart';
 import 'package:ebook/Homepage/explorescreen.dart';
 import 'package:ebook/Homepage/homescreen.dart';
 import 'package:ebook/Homepage/profilescreen.dart';
@@ -7,12 +8,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Homepage extends StatefulWidget {
+  CollectionReference _reference = FirebaseFirestore.instance.collection('Books');
 
+  Homepage({Key? key}) : super (key : key){
+    _stream = _reference.snapshots();
+  }
+  late Stream<QuerySnapshot> _stream;
   @override
   State<Homepage> createState() => _HomepageState();
 }
 
 class _HomepageState extends State<Homepage> {
+
+  CollectionReference _reference = FirebaseFirestore.instance.collection('Books');
+
 
   User? user = FirebaseAuth.instance.currentUser;
   UserModel loggedInUser = UserModel();
@@ -58,10 +67,12 @@ class _HomepageState extends State<Homepage> {
           ),
         ),
       ),
-      body:  SafeArea(
+      body:
+      SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
+
               pages[currentIndex]
 
               // BottomBar()

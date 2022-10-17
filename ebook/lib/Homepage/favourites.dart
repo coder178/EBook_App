@@ -1,8 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ebook/Homepage/detail_screen.dart';
 import 'package:ebook/models/data.dart';
 import 'package:flutter/material.dart';
+
+import '../Admin/book_model.dart';
 class Favourites extends StatefulWidget {
   // const Favourites({Key? key}) : super(key: key);
+  CollectionReference _reference = FirebaseFirestore.instance.collection('Books');
+  late Stream<QuerySnapshot> _stream =_reference.snapshots();
 
   @override
   State<Favourites> createState() => _FavouritesState();
@@ -30,17 +35,38 @@ class _FavouritesState extends State<Favourites> {
         const SizedBox(
           height: 10,
         ),
-        Container(
-          padding: const EdgeInsets.only(left: 20),
-          height: 550,
-          child: ListView.builder(
-            physics: const BouncingScrollPhysics(),
-            scrollDirection: Axis.vertical,
-            itemCount: Booksdata.popular.length,
-            itemBuilder: (context, i) => RecentUpdate(
-              detail: Booksdata.popular[i],
-            ),
-          ),
+        StreamBuilder<QuerySnapshot>(
+          stream: widget._stream,
+          builder: (BuildContext context,AsyncSnapshot snapshot){
+            if (snapshot.hasError) {
+              return Center(child: Text('Some error occurred ${snapshot.error}'));
+            }
+            if (snapshot.hasData) {
+              //get the data
+              QuerySnapshot querySnapshot = snapshot.data;
+              List<QueryDocumentSnapshot> documents = querySnapshot.docs;
+
+              //Convert the documents to Maps
+              List<Map> items = documents.map((e) => e.data() as Map).toList();
+              // Map thisItem = items[0];
+              return Container(
+                padding: const EdgeInsets.only(left: 20),
+                height: 550,
+                child: ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  itemCount: items.length,
+                  itemBuilder: (context, i) => RecentUpdate(
+                    detail: items[i],
+                  ),
+                ),
+              );
+
+            }
+
+            //Show loader
+            return Center(child: CircularProgressIndicator());
+          },
         ),
         const SizedBox(
           height: 20,
@@ -52,7 +78,7 @@ class _FavouritesState extends State<Favourites> {
 }
 class RecentUpdate extends StatelessWidget {
   const RecentUpdate({Key? key, required this.detail}) : super(key: key);
-  final Booksdata detail;
+  final Map detail;
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -71,7 +97,7 @@ class RecentUpdate extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Hero(
-                  tag: detail.id,
+                  tag:0,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                     child: Container(
@@ -79,12 +105,8 @@ class RecentUpdate extends StatelessWidget {
                       width: 130,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: AssetImage(
-                            detail.imagePath,
-                          ),
-                        ),
+                        image:  DecorationImage(image: NetworkImage(detail['imageUrl']),
+                            fit: BoxFit.cover),
                       ),
                     ),
                   ),
@@ -98,7 +120,7 @@ class RecentUpdate extends StatelessWidget {
                       SizedBox(
                         width: 180,
                         child: Text(
-                          detail.bookname,
+                          detail['title'],
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -112,7 +134,7 @@ class RecentUpdate extends StatelessWidget {
                         width: 150,
                         height: 30,
                         child: Text(
-                          detail.authorName,
+                          detail['author'],
                           style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
@@ -124,7 +146,7 @@ class RecentUpdate extends StatelessWidget {
                         width: 150,
                         height: 80,
                         child: Text(
-                          detail.description,
+                          detail['description'],
                           overflow: TextOverflow.ellipsis,
                           maxLines: 4,
                         ),
@@ -140,3 +162,4 @@ class RecentUpdate extends StatelessWidget {
     );
   }
 }
+

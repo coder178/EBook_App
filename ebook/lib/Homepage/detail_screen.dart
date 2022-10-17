@@ -1,9 +1,10 @@
+import 'package:ebook/Admin/book_model.dart';
 import 'package:ebook/Homepage/book_detail.dart';
-import 'package:ebook/models/data.dart';
+// import 'package:ebook/models/data.dart';
 import 'package:flutter/material.dart';
 class Detailscreen extends StatefulWidget {
   @required
-  final Booksdata detail;
+  final Map detail;
   const Detailscreen({Key? key, required this.detail}) : super(key: key);
 
   @override
@@ -13,7 +14,7 @@ class Detailscreen extends StatefulWidget {
 class _Detail_screenState extends State<Detailscreen> {
   bool _isPressed = true;
 
-  final Booksdata detail;
+  final Map detail;
 
   _Detail_screenState(this.detail);
   @override
@@ -50,10 +51,12 @@ class _Detail_screenState extends State<Detailscreen> {
           child: Column(
             children: [
               BookDescriptionDetail(
-                  bookname: detail.bookname,
-                  author: detail.authorName,
-                  description: detail.description,
-                  image: detail.imagePath)
+                  author: detail['author'],
+                  bookname: detail['title'],
+                  description: detail['description'],
+                  image: detail['imageUrl'],
+                  category: detail['category'],
+              )
             ],
           ),
         ));

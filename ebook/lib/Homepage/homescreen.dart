@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: <Widget>[
 
             // TopbarHome(),
-            Quotes(),
+            // Quotes(),
             SizedBox(height: size.height * 0.008,),
             // SearchBar(),
             SuspenceBooks(),

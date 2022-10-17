@@ -1,9 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ebook/Homepage/detail_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../Admin/book_model.dart';
 import '../models/data.dart';
 class SuspenceBooks extends StatefulWidget {
-  const SuspenceBooks({Key? key}) : super(key: key);
+  // const SuspenceBooks({Key? key}) : super(key: key);
+  var _reference = FirebaseFirestore.instance.collection('Books').where('category',isEqualTo: 'Fiction');
+  late Stream<QuerySnapshot> _stream =_reference.snapshots();
 
   @override
   State<SuspenceBooks> createState() => _SuspenceBooksState();
@@ -53,21 +57,44 @@ class _SuspenceBooksState extends State<SuspenceBooks> {
                 );
               }),
             ),
-            // SizedBox(height: size.height * 0.0006,),
-            Container(
-              height: constraints.maxHeight * 0.815,
-              // color: Colors.pink,
-              child: LayoutBuilder(builder: (context,constraints){
-                return ListView.builder(
-                  itemCount: Booksdata.popular.length,
-                  scrollDirection: Axis.horizontal,
+            StreamBuilder<QuerySnapshot>(
+              stream: widget._stream,
+              builder: (BuildContext context,AsyncSnapshot snapshot){
+                if (snapshot.hasError) {
+                  return Center(child: Text('Some error occurred ${snapshot.error}'));
+                }
+                if (snapshot.hasData) {
+                  //get the data
+                  QuerySnapshot querySnapshot = snapshot.data;
+                  List<QueryDocumentSnapshot> documents = querySnapshot.docs;
 
-                  itemBuilder: (context, i)=> RecentUpdate(
-                    detail: Booksdata.popular[i],
-                  ),
-                );
-              },),
-            )
+                  //Convert the documents to Maps
+                  List<Map> items = documents.map((e) => e.data() as Map).toList();
+                  // Map thisItem = items[0];
+                  return Container(
+                    height: constraints.maxHeight * 0.815,
+                    // color: Colors.pink,
+                    child: LayoutBuilder(builder: (context,constraints){
+                      return ListView.builder(
+                        itemCount: items.length,
+                        scrollDirection: Axis.horizontal,
+
+                        itemBuilder: (context, i)=> RecentUpdate(
+                          detail: items[i],
+                        ),
+                      );
+                    },),
+                  );
+
+                }
+
+                //Show loader
+                return Center(child: CircularProgressIndicator());
+              },
+            ),
+
+            // SizedBox(height: size.height * 0.0006,),
+
           ],
         );
       },),
@@ -77,7 +104,7 @@ class _SuspenceBooksState extends State<SuspenceBooks> {
 class RecentUpdate extends StatelessWidget {
   const RecentUpdate({Key? key, required this.detail}) : super(key: key);
 
-  final Booksdata detail;
+  final Map detail;
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -89,15 +116,14 @@ class RecentUpdate extends StatelessWidget {
       child: Column(
         children: [
           Container(
+            // child: Image.network(detail['imageUrl']),
 
             decoration: BoxDecoration(
+                image:  DecorationImage(image: NetworkImage(detail['imageUrl']),
+                fit: BoxFit.cover),
                 color: Colors.green,
                 borderRadius: BorderRadius.circular(10),
-                image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: AssetImage(
-                        detail.imagePath
-                    )),
+
                 boxShadow: [BoxShadow(
                     offset: Offset(4,2),
                     blurRadius: 3,
@@ -118,7 +144,7 @@ class RecentUpdate extends StatelessWidget {
             width: 100,
             // color: Colors.yellow,
             child: Text(
-              detail.bookname,
+              detail['title'],
               style: TextStyle(fontWeight: FontWeight.w400),
 
 

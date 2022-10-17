@@ -5,13 +5,16 @@ class BookDescriptionDetail extends StatelessWidget {
   final String author;
   final String description;
   final String image;
+  final String category;
 
   const BookDescriptionDetail(
       {Key? key,
         required this.bookname,
         required this.author,
         required this.description,
-        required this.image})
+        required this.image,
+        required this.category,
+      })
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -33,12 +36,9 @@ class BookDescriptionDetail extends StatelessWidget {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           // color: Colors.blue,
-                          image: DecorationImage(
-                            image: AssetImage(
-                             image,
-                            ),
-                            fit: BoxFit.cover,
-                          )),
+                        image:  DecorationImage(image: NetworkImage(image),
+                            fit: BoxFit.cover),
+                      ),
                     ),
                     const SizedBox(
                       width: 20,
@@ -87,9 +87,9 @@ class BookDescriptionDetail extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(30),
                                       color: Colors.white,
                                     ),
-                                    child: const Center(
+                                    child: Center(
                                       child: Text(
-                                        'Fiction',
+                                        category,
                                         style: TextStyle(
                                             fontFamily: 'Poppins',
                                             color: Colors.red),
@@ -172,19 +172,7 @@ class BookDescriptionDetail extends StatelessWidget {
                         fontSize: 16,
                         color: Colors.grey,
                         fontWeight: FontWeight.w600)),
-                const Padding(
-                  padding: EdgeInsets.only(top: 18.0, left: 19),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      'show less',
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 14,
-                          color: Colors.red),
-                    ),
-                  ),
-                ),
+
               ],
             )));
   }
